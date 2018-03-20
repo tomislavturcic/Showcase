@@ -13,6 +13,8 @@ import com.example.tt.showcase.utils.LogUtils;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -30,6 +32,7 @@ public class UsersViewModel extends BaseViewModel {
     private final MutableLiveData<List<UserItem>> usersData = new MutableLiveData<>();
     private final MutableLiveData<RequestState> loadMoreRequestStateData = new MutableLiveData<>();
 
+    @Inject
     UsersViewModel(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
         requestStateData.setValue(RequestState.NONE);

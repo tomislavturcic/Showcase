@@ -8,14 +8,17 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 
 import com.example.tt.showcase.R;
+import com.example.tt.showcase.data.network.ApiService;
 import com.example.tt.showcase.data.network.models.UserDetailsDTO;
-import com.example.tt.showcase.di.Injection;
 import com.example.tt.showcase.ui.base.BaseActivity;
 import com.example.tt.showcase.ui.base.RootLayout;
 import com.example.tt.showcase.ui.user_details.models.UserDetailsActivityParams;
 import com.example.tt.showcase.utils.LogUtils;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
+import dagger.android.AndroidInjection;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -31,6 +34,8 @@ public class UserDetailsActivity extends BaseActivity {
 
     @BindView(R.id.toolbar) Toolbar toolbar;
 
+    @Inject ApiService apiService;
+
     private UserDetailsActivityParams params;
 
     public static Intent createUserDetailsIntent(Context context, @NonNull UserDetailsActivityParams params) {
@@ -41,6 +46,7 @@ public class UserDetailsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         params = getIntent().getParcelableExtra(EXTRA_PARAMS);
         if (params == null) {
@@ -58,7 +64,7 @@ public class UserDetailsActivity extends BaseActivity {
 
     private void bindViewModel() {
         showToast("Load user details for " + params.getName() + "...");
-        Injection.provideApiService().getSingleUser(params.getName())
+        apiService.getSingleUser(params.getName())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<UserDetailsDTO>() {

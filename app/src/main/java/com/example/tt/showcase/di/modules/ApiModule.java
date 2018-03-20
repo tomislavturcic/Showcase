@@ -1,10 +1,16 @@
-package com.example.tt.showcase.data.network;
+package com.example.tt.showcase.di.modules;
 
 import com.example.tt.showcase.BuildConfig;
+import com.example.tt.showcase.data.network.ApiService;
+import com.example.tt.showcase.data.network.ApiUrls;
 import com.google.gson.Gson;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -12,21 +18,26 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by TT on 8.3.2018..
+ * Created by TT on 20.3.2018..
  * Showcase
  */
+@Module
 public class ApiModule {
 
-    private static ApiService apiService;
+    private final String baseUrl;
 
-    public static ApiService getApiService(){
-        if(apiService == null){
-            apiService = provideApiService();
-        }
-        return apiService;
+    public ApiModule(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
-    private static ApiService provideApiService(){
+    @Provides
+    @Singleton
+    static Gson provideGson(){
+        return new Gson();
+    }
+
+    @Provides
+    ApiService provideApiService(Gson gson){
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
 
@@ -39,9 +50,9 @@ public class ApiModule {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(okHttpClient)
-                .baseUrl(ApiUrls.BASE_URL)
+                .baseUrl(baseUrl)
                 .build();
 
         return retrofit.create(ApiService.class);

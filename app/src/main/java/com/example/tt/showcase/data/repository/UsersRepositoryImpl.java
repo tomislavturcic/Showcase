@@ -6,6 +6,8 @@ import com.example.tt.showcase.data.network.models.UserDTO;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Single;
 import retrofit2.Response;
 
@@ -23,6 +25,7 @@ public class UsersRepositoryImpl implements UsersRepository {
     private boolean canLoadMore = true;
     private int nextSince = 0;
 
+    @Inject
     public UsersRepositoryImpl(ApiService apiService) {
         this.apiService = apiService;
     }

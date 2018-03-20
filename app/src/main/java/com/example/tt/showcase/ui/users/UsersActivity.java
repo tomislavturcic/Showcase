@@ -1,6 +1,7 @@
 package com.example.tt.showcase.ui.users;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,10 +11,11 @@ import android.support.v7.widget.Toolbar;
 
 import com.example.tt.showcase.R;
 import com.example.tt.showcase.data.network.RequestState;
-import com.example.tt.showcase.di.Injection;
+import com.example.tt.showcase.di.viewmodel.ViewModelFactory;
 import com.example.tt.showcase.ui.base.BaseActivity;
 import com.example.tt.showcase.ui.base.ItemClickListener;
 import com.example.tt.showcase.ui.base.RootLayout;
+import com.example.tt.showcase.ui.test.TestActivity;
 import com.example.tt.showcase.ui.user_details.UserDetailsActivity;
 import com.example.tt.showcase.ui.user_details.models.UserDetailsActivityParams;
 import com.example.tt.showcase.ui.users.adapter.UsersAdapter;
@@ -21,7 +23,10 @@ import com.example.tt.showcase.ui.users.models.UserItem;
 import com.example.tt.showcase.widgets.RetryView;
 import com.example.tt.showcase.widgets.ScrollToBottomListener;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
+import dagger.android.AndroidInjection;
 
 @RootLayout(R.layout.activity_users)
 public class UsersActivity extends BaseActivity {
@@ -31,12 +36,14 @@ public class UsersActivity extends BaseActivity {
     @BindView(R.id.usersRecyclerView) RecyclerView recyclerView;
     @BindView(R.id.usersRetryView) RetryView retryView;
 
+    @Inject ViewModelFactory viewModelFactory;
+
     private UsersAdapter adapter;
-    private ViewModelFactory viewModelFactory;
     private UsersViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
 
         retryView.getBtnRetry().setOnClickListener(v -> viewModel.getUsers());
@@ -61,14 +68,14 @@ public class UsersActivity extends BaseActivity {
         });
 
         ItemClickListener<UserItem> itemClickListener = item -> {
-            startActivity(UserDetailsActivity.createUserDetailsIntent(this, new UserDetailsActivityParams(item.getId(), item.getLoginName())));
+            startActivity(new Intent(this, TestActivity.class));
+            //startActivity(UserDetailsActivity.createUserDetailsIntent(this, new UserDetailsActivityParams(item.getId(), item.getLoginName())));
         };
         adapter = new UsersAdapter(itemClickListener);
         recyclerView.setAdapter(adapter);
     }
 
     private void bindViewModel(){
-        viewModelFactory = Injection.provideViewModelFactory();
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(UsersViewModel.class);
 
         viewModel.observeRequestState().observe(this, this::handleRequestState);
